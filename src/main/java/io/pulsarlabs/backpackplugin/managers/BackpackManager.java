@@ -1,7 +1,9 @@
 package io.pulsarlabs.backpackplugin.managers;
 
 import io.pulsarlabs.backpackplugin.BackpackPlugin;
+import io.pulsarlabs.backpackplugin.listeners.BackpackListener;
 import io.pulsarlabs.backpackplugin.models.Backpack;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 
@@ -15,6 +17,8 @@ public class BackpackManager {
     public BackpackManager(BackpackPlugin plugin) {
         this.plugin = plugin;
         this.backpacks = new ArrayList<>();
+
+        new BackpackListener(this);
     }
 
     public List<Backpack> getBackpacks() {
@@ -26,8 +30,9 @@ public class BackpackManager {
     }
 
     public Backpack registerBackpack(String id, ItemStack item, int rows, ShapedRecipe recipe) {
-        Backpack backpack = new Backpack(id, item, rows, recipe);
+        Backpack backpack = new Backpack(id, item, rows);
         this.backpacks.add(backpack);
+        Bukkit.addRecipe(recipe);
         return backpack;
     }
 }
