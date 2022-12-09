@@ -1,0 +1,4 @@
+name: BackpackPlugin
+version: ${project.version}
+main: io.pulsarlabs.backpackplugin.BackpackPlugin
+api-version: 1.19
