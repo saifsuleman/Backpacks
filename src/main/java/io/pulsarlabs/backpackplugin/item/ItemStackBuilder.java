@@ -1,22 +1,17 @@
-package io.pulsarlabs.backpackplugin.util;
+package io.pulsarlabs.backpackplugin.item;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
-import io.pulsarlabs.backpackplugin.BackpackPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.persistence.PersistentDataType;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -76,7 +71,7 @@ public class ItemStackBuilder {
         return this;
     }
 
-    private ItemStack getItemStack() {
+    protected ItemStack getItemStack() {
         return this.itemStack;
     }
 
@@ -97,37 +92,12 @@ public class ItemStackBuilder {
         return meta(meta -> meta.lore(components));
     }
 
-    public DataContainerController data() {
-        return new DataContainerController(this);
+    public ItemDataController.DataContainerController data() {
+        return new ItemDataController.DataContainerController(this);
     }
 
     public ItemStack build() {
         return this.itemStack.clone();
     }
 
-    public static class DataContainerController {
-        private static final Map<String, NamespacedKey> KEYS = new HashMap<>();
-        private final ItemStackBuilder builder;
-
-        protected DataContainerController(ItemStackBuilder builder) {
-            this.builder = builder;
-        }
-
-        public ItemStackBuilder item() {
-            return builder;
-        }
-
-        public <T, Z> DataContainerController set(String key, PersistentDataType<T, Z> type, Z value) {
-            NamespacedKey namespacedKey = KEYS.computeIfAbsent(key, (ignored) -> new NamespacedKey(BackpackPlugin.getInstance(), key));
-            builder.meta(meta -> {
-                meta.getPersistentDataContainer().set(namespacedKey, type, value);
-            });
-            return this;
-        }
-
-        public <T, Z> Z get(String key, PersistentDataType<T, Z> type) {
-            NamespacedKey namespacedKey = KEYS.computeIfAbsent(key, (ignored) -> new NamespacedKey(BackpackPlugin.getInstance(), key));
-            return builder.getItemStack().getItemMeta().getPersistentDataContainer().get(namespacedKey, type);
-        }
-    }
 }
