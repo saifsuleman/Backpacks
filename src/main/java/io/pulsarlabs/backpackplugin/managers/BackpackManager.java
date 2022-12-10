@@ -29,10 +29,18 @@ public class BackpackManager {
         return plugin;
     }
 
-    public Backpack registerBackpack(String id, ItemStack item, int rows, ShapedRecipe recipe) {
+    public Backpack getBackpack(String id) {
+        for (Backpack backpack : backpacks) {
+            if (backpack.getId().equals(id)) {
+                return backpack;
+            }
+        }
+        return null;
+    }
+
+    public Backpack registerBackpack(String id, ItemStack item, int rows) {
         Backpack backpack = new Backpack(id, item, rows);
         this.backpacks.add(backpack);
-        Bukkit.addRecipe(recipe);
         return backpack;
     }
 }

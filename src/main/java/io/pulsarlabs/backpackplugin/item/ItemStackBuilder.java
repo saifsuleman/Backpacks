@@ -20,7 +20,7 @@ public class ItemStackBuilder {
     private final ItemStack itemStack;
 
     private ItemStackBuilder(ItemStack itemStack) {
-        this.itemStack = itemStack.clone();
+        this.itemStack = itemStack;
     }
 
     public static ItemStackBuilder of(ItemStack itemStack) {
@@ -92,8 +92,8 @@ public class ItemStackBuilder {
         return meta(meta -> meta.lore(components));
     }
 
-    public ItemDataController.DataContainerController data() {
-        return new ItemDataController.DataContainerController(this);
+    public DataContainerController data() {
+        return new DataContainerController(this);
     }
 
     public ItemStack build() {

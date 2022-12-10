@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BackpackHolder implements InventoryHolder {
     private final Backpack backpack;
-    private final ItemStack backpackItem;
+    private ItemStack backpackItem;
     private Inventory inventory;
 
     public BackpackHolder(Backpack backpack, ItemStack backpackItem) {
@@ -30,5 +30,9 @@ public class BackpackHolder implements InventoryHolder {
 
     public void setInventory(Inventory inventory) {
         this.inventory = inventory;
+    }
+
+    public void setBackpackItem(ItemStack backpackItem) {
+        this.backpackItem = backpackItem;
     }
 }

@@ -2,3 +2,7 @@ name: BackpackPlugin
 version: ${project.version}
 main: io.pulsarlabs.backpackplugin.BackpackPlugin
 api-version: 1.19
+commands:
+  givebackpack:
+    permission: backpacks.give
+    aliases: ["givebp"]

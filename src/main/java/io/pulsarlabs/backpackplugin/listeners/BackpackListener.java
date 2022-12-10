@@ -1,12 +1,16 @@
 package io.pulsarlabs.backpackplugin.listeners;
 
+import io.pulsarlabs.backpackplugin.BackpackPlugin;
 import io.pulsarlabs.backpackplugin.managers.BackpackManager;
 import io.pulsarlabs.backpackplugin.models.Backpack;
 import io.pulsarlabs.backpackplugin.models.BackpackHolder;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -40,39 +44,55 @@ public class BackpackListener implements Listener {
         }
     }
 
-    public void saveBackpack(Inventory inventory) {
+    public void saveBackpack(Player player, Inventory inventory) {
         InventoryHolder holder = inventory.getHolder();
 
-        if (!(holder instanceof BackpackHolder)) {
+        if (!(holder instanceof BackpackHolder backpackHolder)) {
             return;
         }
 
-        BackpackHolder backpackHolder = (BackpackHolder) holder;
         Backpack backpack = backpackHolder.getBackpack();
+
+        for (int i = 0; i < inventory.getSize(); i++) {
+            ItemStack itemStack = inventory.getItem(i);
+            if (itemStack == null || itemStack.getType() == Material.AIR) {
+                continue;
+            }
+            if (Backpack.equals(backpackHolder.getBackpackItem(), itemStack)) {
+                inventory.setItem(i, null);
+                backpackHolder.setBackpackItem(itemStack);
+
+                backpack.save(inventory);
+
+                if (player.isOnline()) {
+                    player.getInventory().addItem(itemStack).values().forEach(value -> {
+                        player.getLocation().getWorld().dropItem(player.getLocation(), value);
+                    });
+                }
+
+                return;
+            }
+        }
+
         backpack.save(inventory);
     }
 
     @EventHandler
-    public void onInventoryInteract(InventoryInteractEvent event) {
-        saveBackpack(event.getInventory());
-    }
-
-    @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        saveBackpack(event.getInventory());
+        saveBackpack((Player) event.getPlayer(), event.getInventory());
     }
 
     @EventHandler
     public void onTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
         Inventory inventory = player.getOpenInventory().getTopInventory();
-        saveBackpack(inventory);
+        saveBackpack(player, inventory);
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         Inventory inventory = player.getOpenInventory().getTopInventory();
-        saveBackpack(inventory);
+        saveBackpack(player, inventory);
     }
 }

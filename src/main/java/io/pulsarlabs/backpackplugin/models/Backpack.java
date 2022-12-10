@@ -1,6 +1,6 @@
 package io.pulsarlabs.backpackplugin.models;
 
-import io.pulsarlabs.backpackplugin.item.ItemDataController;
+import io.pulsarlabs.backpackplugin.item.DataContainerController;
 import io.pulsarlabs.backpackplugin.item.ItemStackBuilder;
 import io.pulsarlabs.backpackplugin.serializer.InventorySerializer;
 import org.bukkit.Bukkit;
@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.io.IOException;
+import java.util.UUID;
 
 public class Backpack {
     private final String id;
@@ -28,7 +29,10 @@ public class Backpack {
     }
 
     public ItemStack getItem() {
-        return item.clone();
+        return ItemStackBuilder.of(item.clone())
+                .data()
+                .set("BACKPACK_UUID", PersistentDataType.STRING, UUID.randomUUID().toString())
+                .item().build();
     }
 
     public int getRows() {
@@ -48,7 +52,7 @@ public class Backpack {
             return false;
         }
 
-        ItemDataController.DataContainerController data = ItemStackBuilder.of(itemStack).data();
+        DataContainerController data = ItemStackBuilder.of(itemStack).data();
         String id = data.get("BACKPACK_ID", PersistentDataType.STRING);
 
         return this.id.equals(id);
@@ -57,7 +61,7 @@ public class Backpack {
     public void handleInteract(Player player, ItemStack itemStack) {
         String serialized = ItemStackBuilder.of(itemStack).data().get("BACKPACK_DATA", PersistentDataType.STRING);
         BackpackHolder holder = new BackpackHolder(this, itemStack);
-        Inventory inventory = Bukkit.createInventory(holder, this.rows * 9);
+        Inventory inventory = Bukkit.createInventory(holder, this.rows * 9, itemStack.displayName());
         holder.setInventory(inventory);
         ItemStack[] contents = null;
 
@@ -87,5 +91,15 @@ public class Backpack {
         ItemStack backpackItem = ((BackpackHolder) inventory.getHolder()).getBackpackItem();
         ItemStackBuilder.of(backpackItem).data()
                 .set("BACKPACK_DATA", PersistentDataType.STRING, InventorySerializer.serializeInventory(inventory));
+    }
+
+    public static boolean equals(ItemStack i1, ItemStack i2) {
+        DataContainerController d1 = ItemStackBuilder.of(i1).data();
+        DataContainerController d2 = ItemStackBuilder.of(i2).data();
+
+        String u1 = d1.get("BACKPACK_UUID", PersistentDataType.STRING);
+        String u2 = d2.get("BACKPACK_UUID", PersistentDataType.STRING);
+
+        return u1 != null && u1.equals(u2);
     }
 }
